@@ -1,7 +1,7 @@
 
 package edu.unimagdalena.uStore.services;
 
-import edu.unimagdalena.uStore.exceptions.NotFoundException;
+import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
 import edu.unimagdalena.uStore.repositories.CategoryRepository;
 import edu.unimagdalena.uStore.services.mapper.AssessmentMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class AssessmentServiceImpl implements AssessmentService {
     @Override
     @Transactional(readOnly = true)
     public AssessmentResponse get(Long id){
-        return repo.findById(id).map(AssessmentMapper::toResponse).orElseThrow(() -> new NotFoundException("Assessment %d not found".formatted(id)));
+        return repo.findById(id).map(AssessmentMapper::toResponse).orElseThrow(() -> new ResourceNotFoundException("Assessment %d not found".formatted(id)));
     }
 
     @Override
