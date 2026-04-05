@@ -1,9 +1,9 @@
 
-package Ustore.repositories;
+package uStore.repositories;
 
-import Ustore.entities.Assessment;
-import Ustore.entities.Course;
-import Ustore.entities.Student;
+import uStore.entities.Category;
+import uStore.entities.Customer;
+import uStore.entities.Student;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
     @Autowired
     TestEntityManager em;
 
-    private Assessment assessment;
+    private Category assessment;
 
     @BeforeEach
     void setUp(){
@@ -31,14 +31,14 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build());
-        Course course = em.persist(Course.builder()
+        Customer course = em.persist(Customer.builder()
                 .title("Web Programming")
                 .status("Ongoing")
                 .active(true)
                 .build());
         em.flush();
 
-        assessment = Assessment.builder()
+        assessment = Category.builder()
                 .type("Quiz")
                 .score(85)
                 .takenAt(Instant.now())
@@ -50,7 +50,7 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
     //CREATE
     @Test
     void givenAssessment_whenSave_thenIdIsGenerated(){
-        Assessment saved = assessmentRepository.save(assessment);
+        Category saved = assessmentRepository.save(assessment);
 
         assertThat(saved.getId()).isPositive();
         assertThat(saved.getType()).isEqualTo("Quiz");
@@ -60,9 +60,9 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
     //READ
     @Test
     void givenSavedAssessment_whenFindById_thenReturnAssessment(){
-        Assessment saved = assessmentRepository.save(assessment);
+        Category saved = assessmentRepository.save(assessment);
 
-        Optional<Assessment> found = assessmentRepository.findById(saved.getId());
+        Optional<Category> found = assessmentRepository.findById(saved.getId());
 
         assertThat(found).isPresent();
         assertThat(found.get().getType()).isEqualTo("Quiz");
@@ -70,7 +70,7 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
 
     @Test
     void givenNonExistentId_whenFindById_thenReturnEmpty(){
-        Optional<Assessment> found = assessmentRepository.findById(999L);
+        Optional<Category> found = assessmentRepository.findById(999L);
 
         assertThat(found).isEmpty();
     }
@@ -79,7 +79,7 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
     void givenAssessmentWithType_whenFindByType_thenReturnAssessment(){
         assessmentRepository.save(assessment);
 
-        Optional<Assessment> found = assessmentRepository.findByType("Quiz");
+        Optional<Category> found = assessmentRepository.findByType("Quiz");
 
         assertThat(found).isPresent();
         assertThat(found.get().getType()).isEqualTo("Quiz");
@@ -89,16 +89,16 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
     void givenNonExistentType_whenFindByType_thenReturnEmpty(){
         assessmentRepository.save(assessment);
 
-        Optional<Assessment> found = assessmentRepository.findByType("Project");
+        Optional<Category> found = assessmentRepository.findByType("Project");
 
         assertThat(found).isEmpty();
     }
 
     @Test
     void givenMultipleAssessments_whenFindByIdIn_thenReturnOnlyRequested(){
-        Assessment a1 = assessmentRepository.save(assessment);
-        Assessment a2 = assessmentRepository.save(
-                        Assessment.builder()
+        Category a1 = assessmentRepository.save(assessment);
+        Category a2 = assessmentRepository.save(
+                        Category.builder()
                         .type("Presentation")
                         .score(70)
                         .takenAt(Instant.now())
@@ -107,7 +107,7 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
                         .build()
         );
         assessmentRepository.save(
-                        Assessment.builder()
+                        Category.builder()
                         .type("Homework")
                         .score(60)
                         .takenAt(Instant.now())
@@ -116,22 +116,22 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
                         .build()
         );
 
-        List<Assessment> found = assessmentRepository.findByIdIn(List.of(a1.getId(), a2.getId()));
+        List<Category> found = assessmentRepository.findByIdIn(List.of(a1.getId(), a2.getId()));
 
         assertThat(found).hasSize(2);
-        assertThat(found).extracting(Assessment::getType).containsExactlyInAnyOrder("Quiz", "Presentation");
+        assertThat(found).extracting(Category::getType).containsExactlyInAnyOrder("Quiz", "Presentation");
     }
 
     //UPDATE
     @Test
     void givenSavedAssessment_whenUpdate_thenChangesArePersisted(){
-        Assessment saved = assessmentRepository.save(assessment);
+        Category saved = assessmentRepository.save(assessment);
 
         saved.setScore(95);
         saved.setType("Exam");
         assessmentRepository.save(saved);
 
-        Assessment updated = assessmentRepository.findById(saved.getId()).get();
+        Category updated = assessmentRepository.findById(saved.getId()).get();
         assertThat(updated.getScore()).isEqualTo(95);
         assertThat(updated.getType()).isEqualTo("Exam");
     }
@@ -139,7 +139,7 @@ class AssessmentRepositoryTest extends AbstractRepositoryIT{
     //DELETE
     @Test
     void givenSavedAssessment_whenDelete_thenCannotBeFound(){
-        Assessment saved = assessmentRepository.save(assessment);
+        Category saved = assessmentRepository.save(assessment);
 
         long id = saved.getId();
 

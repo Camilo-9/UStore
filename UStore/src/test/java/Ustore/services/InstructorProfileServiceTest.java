@@ -1,11 +1,11 @@
 
-package Ustore.services;
+package uStore.services;
 
-import Ustore.api.dto.InstructorProfileDtos.*;
-import Ustore.entities.Instructor;
-import Ustore.entities.InstructorProfile;
-import Ustore.repositories.InstructorProfileRepository;
-import Ustore.repositories.InstructorRepository;
+import uStore.api.dto.InstructorProfileDtos.*;
+import uStore.entities.Instructor;
+import uStore.entities.InstructorProfile;
+import uStore.repositories.InstructorProfileRepository;
+import uStore.repositories.InstructorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

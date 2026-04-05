@@ -1,11 +1,11 @@
 
-package Ustore.services;
+package uStore.services;
 
-import Ustore.api.dto.LessonDtos.*;
-import Ustore.entities.Course;
-import Ustore.entities.Lesson;
-import Ustore.repositories.CourseRepository;
-import Ustore.repositories.LessonRepository;
+import uStore.api.dto.LessonDtos.*;
+import uStore.entities.Customer;
+import uStore.entities.Lesson;
+import uStore.repositories.CourseRepository;
+import uStore.repositories.LessonRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,12 +31,12 @@ class LessonServiceTest{
     @InjectMocks
     LessonServiceImpl lessonService;
 
-    private Course course;
+    private Customer course;
     private Lesson lesson;
 
     @BeforeEach
     void setUp(){
-        course = new Course(1L, "Web Programming", "Ongoing", true, Instant.now(),
+        course = new Customer(1L, "Web Programming", "Ongoing", true, Instant.now(),
                             Instant.now(), null, null, null, null);
         lesson = new Lesson(1L, "Introduction", 1, course);
     }

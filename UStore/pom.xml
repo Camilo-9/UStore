@@ -11,7 +11,7 @@
 	<groupId>edu.unimagdalena</groupId>
 	<artifactId>UStore</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>lms</name>
+	<name>uStore</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -79,6 +79,14 @@
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers-postgresql</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
 	</dependencies>
 

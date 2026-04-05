@@ -1,10 +1,10 @@
 
-package Ustore.services;
+package uStore.services;
 
-import Ustore.api.dto.AssessmentDtos.*;
-import Ustore.entities.Assessment;
-import Ustore.exceptions.NotFoundException;
-import Ustore.repositories.AssessmentRepository;
+import uStore.api.dto.AssessmentDtos.*;
+import uStore.entities.Category;
+import uStore.exceptions.NotFoundException;
+import uStore.repositories.AssessmentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,11 +27,11 @@ class AssessmentServiceTest{
     @InjectMocks
     AssessmentServiceImpl assessmentService;
 
-    private Assessment assessment;
+    private Category assessment;
 
     @BeforeEach
     void setUp(){
-        assessment = new Assessment(1L, "Quiz", 85, Instant.now(), null, null);
+        assessment = new Category(1L, "Quiz", 85, Instant.now(), null, null);
     }
 
     // ── Create ────────────────────────────────────────────────────────────────

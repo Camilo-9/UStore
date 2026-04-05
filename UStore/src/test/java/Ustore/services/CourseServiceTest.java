@@ -1,11 +1,11 @@
 
-package Ustore.services;
+package uStore.services;
 
-import Ustore.api.dto.CourseDtos.*;
-import Ustore.entities.Course;
-import Ustore.entities.Instructor;
-import Ustore.repositories.CourseRepository;
-import Ustore.repositories.InstructorRepository;
+import uStore.api.dto.CourseDtos.*;
+import uStore.entities.Customer;
+import uStore.entities.Instructor;
+import uStore.repositories.CourseRepository;
+import uStore.repositories.InstructorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,13 +35,13 @@ class CourseServiceTest{
     CourseServiceImpl courseService;
 
     private Instructor instructor;
-    private Course course;
+    private Customer course;
 
     @BeforeEach
     void setUp(){
         instructor = new Instructor(1L, "instructor@test.com", "John Doe", Instant.now(),
                                     Instant.now(), null, null);
-        course = new Course(1L, "Web Programming", "Ongoing", true, Instant.now(),
+        course = new Customer(1L, "Web Programming", "Ongoing", true, Instant.now(),
                             Instant.now(), null, null, null, instructor);
     }
 
@@ -92,7 +92,7 @@ class CourseServiceTest{
 
     @Test
     void givenCourses_whenList_thenReturnPage(){
-        Page<Course> page = new PageImpl<>(List.of(course));
+        Page<Customer> page = new PageImpl<>(List.of(course));
 
         when(courseRepository.findAll(any(PageRequest.class))).thenReturn(page);
 
