@@ -1,0 +1,141 @@
+
+package edu.unimagdalena.uStore.services;
+
+import edu.unimagdalena.uStore.entities.Category;
+import edu.unimagdalena.uStore.entities.Inventory;
+import edu.unimagdalena.uStore.entities.Product;
+import edu.unimagdalena.uStore.repositories.InventoryRepository;
+import edu.unimagdalena.uStore.repositories.ProductRepository;
+import edu.unimagdalena.uStore.repositories.CategoryRepository;
+import edu.unimagdalena.uStore.api.dto.request.CreateProductRequest;
+import edu.unimagdalena.uStore.api.dto.request.UpdateProductRequest;
+import edu.unimagdalena.uStore.api.dto.request.UpdateInventoryRequest;
+import edu.unimagdalena.uStore.api.dto.response.ProductResponse;
+import edu.unimagdalena.uStore.api.dto.response.CategoryResponse;
+import edu.unimagdalena.uStore.api.dto.response.InventoryResponse;
+import edu.unimagdalena.uStore.exceptions.ConflictException;
+import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+@Service
+@Transactional
+public class ProductServiceImpl implements ProductService{
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final InventoryRepository inventoryRepository;
+
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository,
+                              InventoryRepository inventoryRepository){
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.inventoryRepository = inventoryRepository;
+    }
+
+    private ProductResponse toResponse(Product product, Inventory inventory){
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setId(product.getCategory().getId());
+        categoryResponse.setName(product.getCategory().getName());
+        categoryResponse.setDescription(product.getCategory().getDescription());
+
+        ProductResponse response = new ProductResponse();
+        response.setId(product.getId());
+        response.setSku(product.getSku());
+        response.setName(product.getName());
+        response.setDescription(product.getDescription());
+        response.setPrice(product.getPrice());
+        response.setActive(product.getActive());
+        response.setCategory(categoryResponse);
+
+        if(inventory != null){
+            InventoryResponse inventoryResponse = new InventoryResponse();
+            inventoryResponse.setId(inventory.getId());
+            inventoryResponse.setAvailableStock(inventory.getAvailableStock());
+            inventoryResponse.setMinimumStock(inventory.getMinimumStock());
+            response.setInventory(inventoryResponse);
+        }
+
+        return response;
+    }
+
+    public Product getOrThrow(Long id){
+        return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+        "Producto con id: "+ id+ "no encontrado"));
+    }
+
+    @Override
+    public ProductResponse create(CreateProductRequest request){
+        if(productRepository.existsBySku(request.getSku())){
+            throw new ConflictException("Ya existe un producto con el SKU: "+ request.getSku());
+        }
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+                            .orElseThrow(() -> new ResourceNotFoundException(
+                            "Categoría con id: "+ request.getCategoryId()+ " no encontrada"));
+        Product product = new Product();
+        product.setSku(request.getSku());
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategory(category);
+        Product saved = productRepository.save(product);
+
+        Inventory inventory = new Inventory();
+        inventory.setProduct(saved);
+        inventory.setAvailableStock(0);
+        inventory.setMinimumStock(0);
+        inventoryRepository.save(inventory);
+
+        return toResponse(saved, inventory);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductResponse findById(Long id){
+        Product product = getOrThrow(id);
+        Inventory inventory = inventoryRepository.findByProductId(id).orElse(null);
+
+        return toResponse(product, inventory);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponse> findAll(){
+        return productRepository.findAll().stream().map(p -> {
+        Inventory inventory = inventoryRepository.findByProductId(p.getId()).orElse(null);
+
+        return toResponse(p, inventory);}).toList();
+    }
+
+    @Override
+    public ProductResponse update(Long id, UpdateProductRequest request){
+        Product product = getOrThrow(id);
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+        .orElseThrow(() -> new ResourceNotFoundException("Categoría con id: "+ request.getCategoryId()+
+                                                         " no encontrada"));
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategory(category);
+
+        Inventory inventory = inventoryRepository.findByProductId(id).orElse(null);
+
+        return toResponse(productRepository.save(product), inventory);
+    }
+
+    @Override
+    public ProductResponse updateInventory(Long id, UpdateInventoryRequest request){
+        getOrThrow(id);
+
+        Inventory inventory = inventoryRepository.findByProductId(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Inventario no encontrado para el producto con id: "+
+                                                         id));
+        inventory.setAvailableStock(request.getAvailableStock());
+        inventory.setMinimumStock(request.getMinimumStock());
+
+        return toResponse(productRepository.findById(id).get(), inventoryRepository.save(inventory));
+    }
+}
