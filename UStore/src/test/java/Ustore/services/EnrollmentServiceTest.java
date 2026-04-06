@@ -1,13 +1,13 @@
 
-package Ustore.services;
+package uStore.services;
 
-import Ustore.api.dto.EnrollmentDtos.*;
-import Ustore.entities.Course;
-import Ustore.entities.Enrollment;
-import Ustore.entities.Student;
-import Ustore.repositories.CourseRepository;
-import Ustore.repositories.EnrollmentRepository;
-import Ustore.repositories.StudentRepository;
+import uStore.api.dto.EnrollmentDtos.*;
+import uStore.entities.Customer;
+import uStore.entities.Enrollment;
+import uStore.entities.Student;
+import uStore.repositories.CourseRepository;
+import uStore.repositories.EnrollmentRepository;
+import uStore.repositories.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,14 +37,14 @@ class EnrollmentServiceTest{
     EnrollmentServiceImpl enrollmentService;
 
     private Student student;
-    private Course course;
+    private Customer course;
     private Enrollment enrollment;
 
     @BeforeEach
     void setUp(){
         student = new Student(1L, "test@test.com", "Camilo Alvarez", Instant.now(),
                                Instant.now(), null, null);
-        course = new Course(1L, "Web Programming", "Ongoing", true, Instant.now(),
+        course = new Customer(1L, "Web Programming", "Ongoing", true, Instant.now(),
                              Instant.now(), null, null, null, null);
         enrollment = new Enrollment(1L, "Active", Instant.now(), student, course);
     }
