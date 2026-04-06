@@ -8,6 +8,7 @@ import edu.unimagdalena.uStore.api.dto.response.CustomerResponse;
 import edu.unimagdalena.uStore.api.dto.request.UpdateCustomerRequest;
 import edu.unimagdalena.uStore.exceptions.ConflictException;
 import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
+import edu.unimagdalena.uStore.services.mapper.CustomerMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -16,26 +17,16 @@ import java.util.List;
 @Transactional
 public class CustomerServiceImpl implements CustomerService{
     private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository){
+    public CustomerServiceImpl(CustomerRepository customerRepository, CustomerMapper customerMapper) {
         this.customerRepository = customerRepository;
-    }
-
-    private CustomerResponse toResponse(Customer customer){
-        CustomerResponse response = new CustomerResponse();
-        response.setId(customer.getId());
-        response.setFirstName(customer.getFirstName());
-        response.setLastName(customer.getLastName());
-        response.setEmail(customer.getEmail());
-        response.setPhone(customer.getPhone());
-        response.setStatus(customer.getStatus().name());
-
-        return response;
+        this.customerMapper = customerMapper;
     }
 
     public Customer getOrThrow(Long id){
-        return customerRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Cliente con id: "+ id+ " no encontrado"));
+        return customerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+                "Cliente con id: "+ id+ "no encontrado."));
     }
 
     @Override
@@ -50,19 +41,19 @@ public class CustomerServiceImpl implements CustomerService{
         customer.setEmail(request.getEmail());
         customer.setPhone(request.getPhone());
 
-        return toResponse(customerRepository.save(customer));
+        return customerMapper.toResponse(customerRepository.save(customer));
     }
 
     @Override
     @Transactional(readOnly = true)
     public CustomerResponse findById(Long id){
-        return toResponse(getOrThrow(id));
+        return customerMapper.toResponse(getOrThrow(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CustomerResponse> findAll(){
-        return customerRepository.findAll().stream().map(this::toResponse).toList();
+        return customerRepository.findAll().stream().map(customerMapper::toResponse).toList();
     }
 
     @Override
@@ -72,6 +63,6 @@ public class CustomerServiceImpl implements CustomerService{
         customer.setLastName(request.getLastName());
         customer.setPhone(request.getPhone());
 
-        return toResponse(customerRepository.save(customer));
+        return customerMapper.toResponse(customerRepository.save(customer));
     }
 }

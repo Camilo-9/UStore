@@ -1,5 +1,5 @@
 
-package uStore.services;
+package edu.unimagdalena.uStore.services;
 
 import uStore.api.dto.EnrollmentDtos.*;
 import uStore.entities.Customer;

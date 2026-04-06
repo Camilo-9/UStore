@@ -4,7 +4,6 @@ package edu.unimagdalena.uStore.services;
 import edu.unimagdalena.uStore.api.dto.request.CancelOrderRequest;
 import edu.unimagdalena.uStore.api.dto.request.CreateOrderItemRequest;
 import edu.unimagdalena.uStore.api.dto.request.CreateOrderRequest;
-import edu.unimagdalena.uStore.api.dto.response.OrderItemResponse;
 import edu.unimagdalena.uStore.api.dto.response.OrderResponse;
 import edu.unimagdalena.uStore.entities.*;
 import edu.unimagdalena.uStore.enums.CustomerStatus;
@@ -14,6 +13,7 @@ import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
 import edu.unimagdalena.uStore.repositories.InventoryRepository;
 import edu.unimagdalena.uStore.repositories.OrderRepository;
 import edu.unimagdalena.uStore.repositories.OrderStatusHistoryRepository;
+import edu.unimagdalena.uStore.services.mapper.OrderMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -29,17 +29,19 @@ public class OrderServiceImpl implements OrderService{
     private final ProductServiceImpl productService;
     private final InventoryRepository inventoryRepository;
     private final OrderStatusHistoryRepository historyRepository;
+    private final OrderMapper orderMapper;
 
     public OrderServiceImpl(OrderRepository orderRepository, CustomerServiceImpl customerService,
                             AddressServiceImpl addressService, ProductServiceImpl productService,
                             InventoryRepository inventoryRepository,
-                            OrderStatusHistoryRepository historyRepository){
+                            OrderStatusHistoryRepository historyRepository, OrderMapper orderMapper){
         this.orderRepository = orderRepository;
         this.customerService = customerService;
         this.addressService = addressService;
         this.productService = productService;
         this.inventoryRepository = inventoryRepository;
         this.historyRepository = historyRepository;
+        this.orderMapper = orderMapper;
     }
 
     private void recordHistory(Order order, OrderStatus status, String notes){
@@ -51,31 +53,8 @@ public class OrderServiceImpl implements OrderService{
     }
 
     public Order getOrThrow(Long id){
-        return orderRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Pedido con id: "+ id+ "no encontrado"));
-    }
-
-    private OrderResponse toResponse(Order order){
-        OrderResponse response = new OrderResponse();
-        response.setId(order.getId());
-        response.setCustomerId(order.getCustomer().getId());
-        response.setCustomerName(order.getCustomer().getFirstName()+ " "+ order.getCustomer().getLastName());
-        response.setAddressId(order.getAddress().getId());
-        response.setStatus(order.getStatus().name());
-        response.setTotal(order.getTotal());
-        response.setCreatedAt(order.getCreatedAt());
-        response.setItems(order.getItems().stream().map(item -> {
-        OrderItemResponse itemResponse = new OrderItemResponse();
-        itemResponse.setId(item.getId());
-        itemResponse.setProductId(item.getProduct().getId());
-        itemResponse.setProductName(item.getProduct().getName());
-        itemResponse.setQuantity(item.getQuantity());
-        itemResponse.setUnitPrice(item.getUnitPrice());
-        itemResponse.setSubtotal(item.getSubtotal());
-
-        return itemResponse;}).toList());
-
-        return response;
+        return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+               "Pedido con id: "+ id+ " no encontrado"));
     }
 
     @Override
@@ -106,7 +85,7 @@ public class OrderServiceImpl implements OrderService{
             Product product = productService.getOrThrow(itemRequest.getProductId());
 
             if(!product.getActive()){
-                throw new BusinessException("El producto: "+ product.getName()+ " no está activo");
+                throw new BusinessException("El producto "+ product.getName()+ "no está activo.");
             }
 
             OrderItem item = new OrderItem();
@@ -122,24 +101,24 @@ public class OrderServiceImpl implements OrderService{
 
         order.setTotal(total);
         Order saved = orderRepository.save(order);
-
         recordHistory(saved, OrderStatus.CREATED, "Pedido creado.");
 
-        return toResponse(saved);
+        return orderMapper.toResponse(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
     public OrderResponse findById(Long id){
-        return toResponse(getOrThrow(id));
+        return orderMapper.toResponse(getOrThrow(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<OrderResponse> findByFilters(Long customerId, OrderStatus status, LocalDateTime from,
                                              LocalDateTime to, BigDecimal minTotal, BigDecimal maxTotal){
+
         return orderRepository.findByFilters(customerId, status, from, to, minTotal, maxTotal).stream()
-        .map(this::toResponse).toList();
+               .map(orderMapper::toResponse).toList();
     }
 
     @Override
@@ -152,8 +131,8 @@ public class OrderServiceImpl implements OrderService{
 
         for(OrderItem item:order.getItems()){
             Inventory inventory = inventoryRepository.findByProductId(item.getProduct().getId())
-            .orElseThrow(() -> new ResourceNotFoundException("Inventario no encontrado para el producto: "+
-                                                             item.getProduct().getName()));
+                                  .orElseThrow(() -> new ResourceNotFoundException(
+                                  "Inventario no encontrado para el producto: "+ item.getProduct().getName()));
 
             if(inventory.getAvailableStock() < item.getQuantity()){
                 throw new BusinessException("Stock insuficiente para el producto: "+
@@ -171,7 +150,7 @@ public class OrderServiceImpl implements OrderService{
         Order saved = orderRepository.save(order);
         recordHistory(saved, OrderStatus.PAID, "Pedido pagado.");
 
-        return toResponse(saved);
+        return orderMapper.toResponse(saved);
     }
 
     @Override
@@ -186,7 +165,7 @@ public class OrderServiceImpl implements OrderService{
         Order saved = orderRepository.save(order);
         recordHistory(saved, OrderStatus.SHIPPED, "Pedido despachado.");
 
-        return toResponse(saved);
+        return orderMapper.toResponse(saved);
     }
 
     @Override
@@ -201,7 +180,7 @@ public class OrderServiceImpl implements OrderService{
         Order saved = orderRepository.save(order);
         recordHistory(saved, OrderStatus.DELIVERED, "Pedido entregado.");
 
-        return toResponse(saved);
+        return orderMapper.toResponse(saved);
     }
 
     @Override
@@ -223,8 +202,9 @@ public class OrderServiceImpl implements OrderService{
         if(order.getStatus() == OrderStatus.PAID){
             for(OrderItem item:order.getItems()){
                 Inventory inventory = inventoryRepository.findByProductId(item.getProduct().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Inventario no encontrado para el producto: "+
-                                                                 item.getProduct().getName()));
+                                      .orElseThrow(() -> new ResourceNotFoundException(
+                                      "Inventario no encontrado para el producto: "+
+                                      item.getProduct().getName()));
                 inventory.setAvailableStock(inventory.getAvailableStock() + item.getQuantity());
                 inventoryRepository.save(inventory);
             }
@@ -235,6 +215,6 @@ public class OrderServiceImpl implements OrderService{
         recordHistory(saved, OrderStatus.CANCELLED,
                       request.getNotes() != null ? request.getNotes():"Pedido cancelado.");
 
-        return toResponse(saved);
+        return orderMapper.toResponse(saved);
     }
 }

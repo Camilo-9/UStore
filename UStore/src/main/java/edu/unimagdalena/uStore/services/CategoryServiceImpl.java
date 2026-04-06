@@ -6,6 +6,7 @@ import edu.unimagdalena.uStore.repositories.CategoryRepository;
 import edu.unimagdalena.uStore.api.dto.response.CategoryResponse;
 import edu.unimagdalena.uStore.api.dto.request.CreateCategoryRequest;
 import edu.unimagdalena.uStore.exceptions.ConflictException;
+import edu.unimagdalena.uStore.services.mapper.CategoryMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -14,18 +15,11 @@ import java.util.List;
 @Transactional
 public class CategoryServiceImpl implements CategoryService{
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository){
+    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper){
         this.categoryRepository = categoryRepository;
-    }
-
-    private CategoryResponse toResponse(Category category){
-        CategoryResponse response = new CategoryResponse();
-        response.setId(category.getId());
-        response.setName(category.getName());
-        response.setDescription(category.getDescription());
-
-        return response;
+        this.categoryMapper = categoryMapper;
     }
 
     @Override
@@ -39,12 +33,12 @@ public class CategoryServiceImpl implements CategoryService{
         category.setDescription(request.getDescription());
         Category saved = categoryRepository.save(category);
 
-        return toResponse(saved);
+        return categoryMapper.toResponse(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CategoryResponse> findAll(){
-        return categoryRepository.findAll().stream().map(this::toResponse).toList();
+        return categoryRepository.findAll().stream().map(categoryMapper::toResponse).toList();
     }
 }

@@ -9,6 +9,7 @@ import edu.unimagdalena.uStore.api.dto.response.AddressResponse;
 import edu.unimagdalena.uStore.enums.CustomerStatus;
 import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
 import edu.unimagdalena.uStore.exceptions.BusinessException;
+import edu.unimagdalena.uStore.services.mapper.AddressMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -18,22 +19,22 @@ import java.util.List;
 public class AddressServiceImpl implements AddressService{
     private final AddressRepository addressRepository;
     private final CustomerServiceImpl customerService;
+    private final AddressMapper addressMapper;
 
-    public AddressServiceImpl(AddressRepository addressRepository, CustomerServiceImpl customerService){
+    public AddressServiceImpl(AddressRepository addressRepository, CustomerServiceImpl customerService,
+                              AddressMapper addressMapper){
         this.addressRepository = addressRepository;
         this.customerService = customerService;
+        this.addressMapper = addressMapper;
     }
 
-    private AddressResponse toResponse(Address address){
-        AddressResponse response = new AddressResponse();
-        response.setId(address.getId());
-        response.setStreet(address.getStreet());
-        response.setCity(address.getCity());
-        response.setState(address.getState());
-        response.setZipCode(address.getZipCode());
-        response.setCountry(address.getCountry());
+    public Address getOrThrow(Long addressId, Long customerId){
+        if(!addressRepository.existsByIdAndCustomerId(addressId, customerId)){
+            throw new ResourceNotFoundException("Dirección con id: "+ addressId+ " no encontrada para el cliente: "+ customerId);
+        }
 
-        return response;
+        return addressRepository.findById(addressId).orElseThrow(() -> new ResourceNotFoundException(
+               "Dirección con id: "+ addressId+ "no encontrada."));
     }
 
     @Override
@@ -52,7 +53,7 @@ public class AddressServiceImpl implements AddressService{
         address.setZipCode(request.getZipCode());
         address.setCountry(request.getCountry() != null ? request.getCountry():"Colombia");
 
-        return toResponse(addressRepository.save(address));
+        return addressMapper.toResponse(addressRepository.save(address));
     }
 
     @Override
@@ -60,16 +61,6 @@ public class AddressServiceImpl implements AddressService{
     public List<AddressResponse> findByCustomerId(Long customerId){
         customerService.getOrThrow(customerId);
 
-        return addressRepository.findByCustomerId(customerId).stream().map(this::toResponse).toList();
-    }
-
-    public Address getOrThrow(Long addressId, Long customerId){
-        if(!addressRepository.existsByIdAndCustomerId(addressId, customerId)){
-            throw new ResourceNotFoundException("Dirección con id: "+ addressId+
-                                                " no encontrada para el cliente: "+ customerId);
-        }
-
-        return addressRepository.findById(addressId)
-        .orElseThrow(() -> new ResourceNotFoundException("Dirección no encontrada con id: " + addressId));
+        return addressRepository.findByCustomerId(customerId).stream().map(addressMapper::toResponse).toList();
     }
 }
