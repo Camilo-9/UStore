@@ -1,5 +1,5 @@
 
-package Ustore.repositories;
+package uStore.repositories;
 
 class EnrollmentRepositoryTest extends AbstractRepositoryIT {
 

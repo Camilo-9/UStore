@@ -1,9 +1,9 @@
 
-package Ustore.services;
+package uStore.services;
 
-import Ustore.api.dto.StudentDtos.*;
-import Ustore.entities.Student;
-import Ustore.repositories.StudentRepository;
+import uStore.api.dto.StudentDtos.*;
+import uStore.entities.Student;
+import uStore.repositories.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

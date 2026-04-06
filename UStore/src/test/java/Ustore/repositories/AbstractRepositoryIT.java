@@ -1,5 +1,5 @@
 
-package Ustore.repositories;
+package uStore.repositories;
 
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
