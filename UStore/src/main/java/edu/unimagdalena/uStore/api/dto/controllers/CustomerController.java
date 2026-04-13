@@ -21,8 +21,7 @@ public class CustomerController{
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> create(
-                                                   @RequestBody
+    public ResponseEntity<CustomerResponse> create(@RequestBody
                                                    @Valid
                                                    CreateCustomerRequest request){
 
@@ -30,8 +29,7 @@ public class CustomerController{
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerResponse> getById(
-                                                    @PathVariable
+    public ResponseEntity<CustomerResponse> getById(@PathVariable
                                                     Long id){
 
         return ResponseEntity.ok(customerService.findById(id));
@@ -43,8 +41,7 @@ public class CustomerController{
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerResponse> update(
-                                                   @PathVariable
+    public ResponseEntity<CustomerResponse> update(@PathVariable
                                                    Long id,
 
                                                    @RequestBody
