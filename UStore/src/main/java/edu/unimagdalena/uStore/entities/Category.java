@@ -61,4 +61,12 @@ public class Category{
     public void setCreatedAt(LocalDateTime createdAt){
         this.createdAt = createdAt;
     }
+
+    public List<Product> getProducts(){
+        return products;
+    }
+
+    public void setProducts(List<Product> products){
+        this.products = products;
+    }
 }
