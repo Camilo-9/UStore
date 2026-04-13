@@ -1,8 +1,15 @@
 
 package edu.unimagdalena.uStore.api.dto.request;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 public class CreateOrderItemRequest{
+    @NotNull
     private Long productId;
+
+    @NotNull
+    @Min(1)
     private Integer quantity;
 
     public Long getProductId(){

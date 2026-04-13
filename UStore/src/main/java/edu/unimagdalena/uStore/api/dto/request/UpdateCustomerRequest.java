@@ -1,9 +1,18 @@
 
 package edu.unimagdalena.uStore.api.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class UpdateCustomerRequest{
+    @NotBlank
     private String firstName;
+
+    @NotBlank
     private String lastName;
+
+    @NotBlank
+    @Size(max = 24)
     private String phone;
 
     public String getFirstName(){

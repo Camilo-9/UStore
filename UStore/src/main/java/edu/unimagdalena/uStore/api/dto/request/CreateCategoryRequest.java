@@ -1,8 +1,13 @@
 
 package edu.unimagdalena.uStore.api.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class CreateCategoryRequest{
+    @NotBlank
     private String name;
+
+    @NotBlank
     private String description;
 
     public String getName(){
