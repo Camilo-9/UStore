@@ -1,0 +1,54 @@
+
+package edu.unimagdalena.uStore.repositories;
+
+import edu.unimagdalena.uStore.entities.Product;
+import edu.unimagdalena.uStore.entities.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
+import java.math.BigDecimal;
+import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+@DataJpaTest
+@ActiveProfiles("test")
+class ProductRepositoryIntegrationTest{
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private InventoryRepository inventoryRepository;
+
+    @Test
+    void debeBuscarProductosPorCategoria(){
+        Category category = new Category();
+        category.setName("Ropa");
+        category = categoryRepository.save(category);
+
+        Product product = new Product();
+        product.setSku("ABC123");
+        product.setName("Camisa Polo");
+        product.setPrice(BigDecimal.valueOf(100));
+        product.setActive(true);
+        product.setCategory(category);
+
+        productRepository.save(product);
+
+        List<Product> result = productRepository
+                               .findByActiveTrueAndCategoryId(category.getId());
+
+        assertFalse(result.isEmpty());
+    }
+
+    @AfterEach
+    void limpiar(){
+        productRepository.deleteAll();
+        categoryRepository.deleteAll();
+        inventoryRepository.deleteAll();
+    }
+}
