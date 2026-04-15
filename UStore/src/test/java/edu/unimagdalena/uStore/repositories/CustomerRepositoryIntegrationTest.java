@@ -3,15 +3,18 @@ package edu.unimagdalena.uStore.repositories;
 
 import edu.unimagdalena.uStore.entities.Customer;
 import edu.unimagdalena.uStore.enums.CustomerStatus;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@Transactional
+@Rollback
 @ActiveProfiles("test")
 class CustomerRepositoryIntegrationTest{
     @Autowired
@@ -31,10 +34,5 @@ class CustomerRepositoryIntegrationTest{
 
         assertTrue(result.isPresent());
         assertEquals("andrea@test.com", result.get().getEmail());
-    }
-
-    @AfterEach
-    void limpiar(){
-        customerRepository.deleteAll();
     }
 }

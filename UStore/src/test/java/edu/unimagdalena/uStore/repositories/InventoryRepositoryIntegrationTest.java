@@ -3,19 +3,21 @@ package edu.unimagdalena.uStore.repositories;
 
 import edu.unimagdalena.uStore.entities.Inventory;
 import edu.unimagdalena.uStore.entities.Product;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
+@Transactional
+@Rollback
 @ActiveProfiles("test")
 class InventoryRepositoryIntegrationTest{
     @Autowired
@@ -85,11 +87,5 @@ class InventoryRepositoryIntegrationTest{
         Optional<Inventory> result = inventoryRepository.findByProductId(product.getId());
 
         assertTrue(result.isPresent());
-    }
-
-    @AfterEach
-    void limpiar(){
-        inventoryRepository.deleteAll();
-        productRepository.deleteAll();
     }
 }
