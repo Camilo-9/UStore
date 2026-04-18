@@ -46,7 +46,11 @@ public class Order{
     private void prePersist(){
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.status = OrderStatus.CREATED;
+
+        if(this.status == null){
+            this.status = OrderStatus.CREATED;
+        }
+
         this.total = BigDecimal.ZERO;
     }
 

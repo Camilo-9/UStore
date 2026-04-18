@@ -1,6 +1,4 @@
 
-// Customers
-
 CREATE TABLE customers(
     id BIGSERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
@@ -11,8 +9,6 @@ CREATE TABLE customers(
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-// ADDRESSES
 
 CREATE TABLE addresses(
     id BIGSERIAL PRIMARY KEY,
@@ -25,17 +21,12 @@ CREATE TABLE addresses(
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-
-// CATEGORIES
-
 CREATE TABLE categories(
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description VARCHAR(300),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-// PRODUCTS
 
 CREATE TABLE products(
     id BIGSERIAL PRIMARY KEY,
@@ -49,8 +40,6 @@ CREATE TABLE products(
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-// INVENTORIES
-
 CREATE TABLE inventories(
     id BIGSERIAL PRIMARY KEY,
     product_id BIGINT NOT NULL UNIQUE REFERENCES products(id),
@@ -58,9 +47,6 @@ CREATE TABLE inventories(
     minimum_stock INT NOT NULL DEFAULT 0 CHECK (minimum_stock >= 0),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-
-// ORDERS
 
 CREATE TABLE orders(
     id BIGSERIAL PRIMARY KEY,
@@ -72,9 +58,6 @@ CREATE TABLE orders(
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-
-// ORDER_ITEMS
-
 CREATE TABLE order_items(
     id BIGSERIAL PRIMARY KEY,
     order_id BIGINT NOT NULL REFERENCES orders(id),
@@ -83,8 +66,6 @@ CREATE TABLE order_items(
     unit_price NUMERIC(12, 2) NOT NULL CHECK (unit_price > 0),
     subtotal NUMERIC(12, 2) NOT NULL
 );
-
-// ORDER_STATUS_HISTORY
 
 CREATE TABLE order_status_history(
     id BIGSERIAL PRIMARY KEY,

@@ -33,13 +33,17 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     );
 
     @Query("""
-           SELECT oi.product.id, oi.product.name, SUM(oi.quantity) AS totalSold
-           FROM OrderItem oi
-           WHERE oi.order.createdAt BETWEEN :from AND :to
-           GROUP BY oi.product.id, oi.product.name
-           ORDER BY totalSold DESC
-        """)
+           SELECT p.name, SUM(oi.quantity)
+           FROM Order o
+           JOIN o.items oi
+           JOIN oi.product p
+           WHERE o.status = :status
+           AND o.createdAt BETWEEN :from AND :to
+           GROUP BY p.name
+           ORDER BY SUM(oi.quantity) DESC
+           """)
     List<Object[]> findBestSellingProducts(
+            @Param("status") OrderStatus status,
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
