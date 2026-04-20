@@ -18,7 +18,7 @@ import java.util.List;
 @Transactional
 public class AddressServiceImpl implements AddressService{
     private final AddressRepository addressRepository;
-    private final CustomerService customerService;
+    private final CustomerServiceImpl customerService;
     private final AddressMapper addressMapper;
 
     public AddressServiceImpl(AddressRepository addressRepository, CustomerServiceImpl customerService,
