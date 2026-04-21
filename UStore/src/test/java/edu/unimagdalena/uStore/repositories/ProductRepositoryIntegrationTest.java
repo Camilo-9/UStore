@@ -36,16 +36,15 @@ class ProductRepositoryIntegrationTest{
         category = categoryRepository.save(category);
 
         Product product = new Product();
-        product.setSku("ABC123");
+        product.setSku("fg89fd");
         product.setName("Camisa Polo");
-        product.setPrice(BigDecimal.valueOf(100));
+        product.setPrice(BigDecimal.valueOf(1500));
         product.setActive(true);
         product.setCategory(category);
 
         productRepository.save(product);
 
-        List<Product> result = productRepository
-                               .findByActiveTrueAndCategoryId(category.getId());
+        List<Product> result = productRepository.findByActiveTrueAndCategoryId(category.getId());
 
         assertFalse(result.isEmpty());
     }

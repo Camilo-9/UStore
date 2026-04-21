@@ -18,8 +18,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
            FROM Order o
            WHERE (:customerId IS NULL OR o.customer.id = :customerId)
            AND (:status IS NULL OR o.status = :status)
-           AND (:from IS NULL OR o.createdAt >= :from)
-           AND (:to IS NULL OR o.createdAt <= :to)
+           AND (CAST(:from AS timestamp) IS NULL OR o.createdAt >= :from)
+           AND (CAST(:to AS timestamp) IS NULL OR o.createdAt <= :to)
            AND (:minTotal IS NULL OR o.total >= :minTotal)
            AND (:maxTotal IS NULL OR o.total <= :maxTotal)
            """)
@@ -33,17 +33,13 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     );
 
     @Query("""
-           SELECT p.name, SUM(oi.quantity)
-           FROM Order o
-           JOIN o.items oi
-           JOIN oi.product p
-           WHERE o.status = :status
-           AND o.createdAt BETWEEN :from AND :to
-           GROUP BY p.name
-           ORDER BY SUM(oi.quantity) DESC
+           SELECT oi.product.id, oi.product.name, SUM(oi.quantity) AS totalSold
+           FROM OrderItem oi
+           WHERE oi.order.createdAt BETWEEN :from AND :to
+           GROUP BY oi.product.id, oi.product.name
+           ORDER BY totalSold DESC
            """)
     List<Object[]> findBestSellingProducts(
-            @Param("status") OrderStatus status,
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
@@ -60,7 +56,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     @Query("""
            SELECT o.customer.id, o.customer.firstName, o.customer.lastName, SUM(o.total) AS totalSpent
            FROM Order o
-           WHERE o.status != 'CANCELLED'
+           WHERE o.status = 'DELIVERED'
            GROUP BY o.customer.id, o.customer.firstName, o.customer.lastName
            ORDER BY totalSpent DESC
            """)

@@ -29,13 +29,17 @@ class InventoryRepositoryIntegrationTest{
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Test
     void debeEncontrarProductosConBajoStock(){
         Category category = new Category();
         category.setName("Dulces");
+        category = categoryRepository.save(category);
 
         Product product = new Product();
-        product.setSku("LOW-STOCK");
+        product.setSku("6f5ds");
         product.setName("Menta");
         product.setPrice(BigDecimal.valueOf(10));
         product.setActive(true);
@@ -58,9 +62,10 @@ class InventoryRepositoryIntegrationTest{
     void noDebeRetornarProductosConStockSuficiente(){
         Category category = new Category();
         category.setName("Balones");
+        category = categoryRepository.save(category);
 
         Product product = new Product();
-        product.setSku("OK-STOCK");
+        product.setSku("h5g4j");
         product.setName("Balon de futbol");
         product.setPrice(BigDecimal.valueOf(100));
         product.setActive(true);
@@ -83,9 +88,10 @@ class InventoryRepositoryIntegrationTest{
     void debeEncontrarInventarioPorProducto(){
         Category category = new Category();
         category.setName("Ropa");
+        category = categoryRepository.save(category);
 
         Product product = new Product();
-        product.setSku("INV-1");
+        product.setSku("fg35h");
         product.setName("Zapato deportivo");
         product.setPrice(BigDecimal.valueOf(50));
         product.setActive(true);

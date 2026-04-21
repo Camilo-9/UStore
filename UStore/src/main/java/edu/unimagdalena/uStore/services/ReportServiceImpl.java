@@ -2,9 +2,9 @@
 package edu.unimagdalena.uStore.services;
 
 import edu.unimagdalena.uStore.entities.Product;
-import edu.unimagdalena.uStore.enums.OrderStatus;
 import edu.unimagdalena.uStore.repositories.InventoryRepository;
 import edu.unimagdalena.uStore.repositories.OrderRepository;
+import edu.unimagdalena.uStore.repositories.ProductRepository;
 import edu.unimagdalena.uStore.api.dto.response.BestSellingProductResponse;
 import edu.unimagdalena.uStore.api.dto.response.LowStockProductResponse;
 import edu.unimagdalena.uStore.api.dto.response.MonthlyIncomeResponse;
@@ -21,17 +21,20 @@ import java.util.List;
 public class ReportServiceImpl implements ReportService{
     private final OrderRepository orderRepository;
     private final InventoryRepository inventoryRepository;
+    private final ProductRepository productRepository;
 
-    public ReportServiceImpl(OrderRepository orderRepository, InventoryRepository inventoryRepository){
+    public ReportServiceImpl(OrderRepository orderRepository, InventoryRepository inventoryRepository,
+                             ProductRepository productRepository){
         this.orderRepository = orderRepository;
         this.inventoryRepository = inventoryRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
-    public List<BestSellingProductResponse> findBestSellingProducts(OrderStatus orderStatus,
-                                                                    LocalDateTime from, LocalDateTime to){
-        return orderRepository.findBestSellingProducts(OrderStatus.DELIVERED, from, to).stream().map(row -> {
+    public List<BestSellingProductResponse> findBestSellingProducts(LocalDateTime from, LocalDateTime to){
+        return orderRepository.findBestSellingProducts(from, to).stream().map(row -> {
                     BestSellingProductResponse response = new BestSellingProductResponse();
+                    response.setProductId((Long) row[0]);
                     response.setProductName((String) row[1]);
                     response.setTotalSold((Long) row[2]);
 
