@@ -2,23 +2,26 @@
 package edu.unimagdalena.uStore.repositories;
 
 import edu.unimagdalena.uStore.entities.Inventory;
+import edu.unimagdalena.uStore.entities.Category;
 import edu.unimagdalena.uStore.entities.Product;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @Transactional
 @Rollback
 @ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class InventoryRepositoryIntegrationTest{
     @Autowired
     private InventoryRepository inventoryRepository;
@@ -26,13 +29,21 @@ class InventoryRepositoryIntegrationTest{
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Test
     void debeEncontrarProductosConBajoStock(){
+        Category category = new Category();
+        category.setName("Dulces");
+        category = categoryRepository.save(category);
+
         Product product = new Product();
-        product.setSku("LOW-STOCK");
+        product.setSku("6f5ds");
         product.setName("Menta");
         product.setPrice(BigDecimal.valueOf(10));
         product.setActive(true);
+        product.setCategory(category);
         product = productRepository.save(product);
 
         Inventory inventory = new Inventory();
@@ -49,11 +60,16 @@ class InventoryRepositoryIntegrationTest{
 
     @Test
     void noDebeRetornarProductosConStockSuficiente(){
+        Category category = new Category();
+        category.setName("Balones");
+        category = categoryRepository.save(category);
+
         Product product = new Product();
-        product.setSku("OK-STOCK");
+        product.setSku("h5g4j");
         product.setName("Balon de futbol");
         product.setPrice(BigDecimal.valueOf(100));
         product.setActive(true);
+        product.setCategory(category);
         product = productRepository.save(product);
 
         Inventory inventory = new Inventory();
@@ -70,11 +86,16 @@ class InventoryRepositoryIntegrationTest{
 
     @Test
     void debeEncontrarInventarioPorProducto(){
+        Category category = new Category();
+        category.setName("Ropa");
+        category = categoryRepository.save(category);
+
         Product product = new Product();
-        product.setSku("INV-1");
+        product.setSku("fg35h");
         product.setName("Zapato deportivo");
         product.setPrice(BigDecimal.valueOf(50));
         product.setActive(true);
+        product.setCategory(category);
         product = productRepository.save(product);
 
         Inventory inventory = new Inventory();

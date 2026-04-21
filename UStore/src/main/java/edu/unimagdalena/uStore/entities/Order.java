@@ -44,10 +44,19 @@ public class Order{
 
     @PrePersist
     private void prePersist(){
-        this.createdAt = LocalDateTime.now();
+        if(this.createdAt == null){
+            this.createdAt = LocalDateTime.now();
+        }
+
         this.updatedAt = LocalDateTime.now();
-        this.status = OrderStatus.CREATED;
-        this.total = BigDecimal.ZERO;
+
+        if(this.status == null){
+            this.status = OrderStatus.CREATED;
+        }
+
+        if(this.total == null){
+            this.total = BigDecimal.ZERO;
+        }
     }
 
     @PreUpdate

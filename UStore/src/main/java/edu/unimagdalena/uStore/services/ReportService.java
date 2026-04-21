@@ -5,7 +5,6 @@ import edu.unimagdalena.uStore.api.dto.response.BestSellingProductResponse;
 import edu.unimagdalena.uStore.api.dto.response.LowStockProductResponse;
 import edu.unimagdalena.uStore.api.dto.response.MonthlyIncomeResponse;
 import edu.unimagdalena.uStore.api.dto.response.TopCustomerResponse;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
