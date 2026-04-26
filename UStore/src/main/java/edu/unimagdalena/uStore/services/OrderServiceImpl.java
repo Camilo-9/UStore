@@ -24,24 +24,24 @@ import java.util.List;
 @Transactional
 public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
+    private final OrderStatusHistoryRepository historyRepository;
+    private final OrderMapper orderMapper;
+    private final InventoryRepository inventoryRepository;
     private final CustomerServiceImpl customerService;
     private final AddressServiceImpl addressService;
     private final ProductServiceImpl productService;
-    private final InventoryRepository inventoryRepository;
-    private final OrderStatusHistoryRepository historyRepository;
-    private final OrderMapper orderMapper;
 
-    public OrderServiceImpl(OrderRepository orderRepository, CustomerServiceImpl customerService,
-                            AddressServiceImpl addressService, ProductServiceImpl productService,
-                            InventoryRepository inventoryRepository,
-                            OrderStatusHistoryRepository historyRepository, OrderMapper orderMapper){
+    public OrderServiceImpl(OrderRepository orderRepository, OrderStatusHistoryRepository historyRepository,
+                            OrderMapper orderMapper, InventoryRepository inventoryRepository,
+                            CustomerServiceImpl customerService, AddressServiceImpl addressService,
+                            ProductServiceImpl productService){
         this.orderRepository = orderRepository;
+        this.historyRepository = historyRepository;
+        this.orderMapper = orderMapper;
+        this.inventoryRepository = inventoryRepository;
         this.customerService = customerService;
         this.addressService = addressService;
         this.productService = productService;
-        this.inventoryRepository = inventoryRepository;
-        this.historyRepository = historyRepository;
-        this.orderMapper = orderMapper;
     }
 
     private void recordHistory(Order order, OrderStatus status, String notes){
@@ -49,12 +49,13 @@ public class OrderServiceImpl implements OrderService{
         history.setOrder(order);
         history.setStatus(status);
         history.setNotes(notes);
+
         historyRepository.save(history);
     }
 
     public Order getOrThrow(Long id){
-        return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
-               "Pedido con id: "+ id+ " no encontrado"));
+        return orderRepository.findById(id).orElseThrow(() ->
+               new ResourceNotFoundException("Pedido con id: "+ id+ " no encontrado"));
     }
 
     @Override
@@ -74,6 +75,7 @@ public class OrderServiceImpl implements OrderService{
         Order order = new Order();
         order.setCustomer(customer);
         order.setAddress(address);
+        order.setStatus(OrderStatus.CREATED);
 
         BigDecimal total = BigDecimal.ZERO;
 
@@ -85,7 +87,8 @@ public class OrderServiceImpl implements OrderService{
             Product product = productService.getOrThrow(itemRequest.getProductId());
 
             if(!product.getActive()){
-                throw new BusinessException("El producto "+ product.getName()+ "no está activo.");
+                throw new BusinessException("El producto "+ product.getName()+ " no está activo."
+                );
             }
 
             OrderItem item = new OrderItem();
@@ -100,7 +103,9 @@ public class OrderServiceImpl implements OrderService{
         }
 
         order.setTotal(total);
+
         Order saved = orderRepository.save(order);
+
         recordHistory(saved, OrderStatus.CREATED, "Pedido creado.");
 
         return orderMapper.toResponse(saved);
@@ -116,7 +121,6 @@ public class OrderServiceImpl implements OrderService{
     @Transactional(readOnly = true)
     public List<OrderResponse> findByFilters(Long customerId, OrderStatus status, LocalDateTime from,
                                              LocalDateTime to, BigDecimal minTotal, BigDecimal maxTotal){
-
         return orderRepository.findByFilters(customerId, status, from, to, minTotal, maxTotal).stream()
                .map(orderMapper::toResponse).toList();
     }
@@ -126,28 +130,33 @@ public class OrderServiceImpl implements OrderService{
         Order order = getOrThrow(id);
 
         if(order.getStatus() != OrderStatus.CREATED){
-            throw new BusinessException("Solo un pedido en estado CREATED puede pagarse.");
+            throw new BusinessException("Solo un pedido en estado CREATED puede pasar a PAID.");
         }
 
         for(OrderItem item:order.getItems()){
             Inventory inventory = inventoryRepository.findByProductId(item.getProduct().getId())
                                   .orElseThrow(() -> new ResourceNotFoundException(
-                                  "Inventario no encontrado para el producto: "+ item.getProduct().getName()));
+                                  "Inventario no encontrado para el producto: "+ item.getProduct()
+                                                                                     .getName()));
 
             if(inventory.getAvailableStock() < item.getQuantity()){
-                throw new BusinessException("Stock insuficiente para el producto: "+
-                                            item.getProduct().getName());
+                throw new BusinessException("Stock insuficiente para el producto: "+ item.getProduct()
+                                                                                         .getName());
             }
         }
 
         for(OrderItem item:order.getItems()){
-            Inventory inventory = inventoryRepository.findByProductId(item.getProduct().getId()).get();
+            Inventory inventory = inventoryRepository.findByProductId(item.getProduct().getId())
+                                                     .orElseThrow();
             inventory.setAvailableStock(inventory.getAvailableStock() - item.getQuantity());
+
             inventoryRepository.save(inventory);
         }
 
         order.setStatus(OrderStatus.PAID);
+
         Order saved = orderRepository.save(order);
+
         recordHistory(saved, OrderStatus.PAID, "Pedido pagado.");
 
         return orderMapper.toResponse(saved);
@@ -158,11 +167,12 @@ public class OrderServiceImpl implements OrderService{
         Order order = getOrThrow(id);
 
         if(order.getStatus() != OrderStatus.PAID){
-            throw new BusinessException("Solo un pedido en estado PAID puede despacharse.");
+            throw new BusinessException("Solo un pedido en estado PAID puede pasar a SHIPPED.");
         }
 
         order.setStatus(OrderStatus.SHIPPED);
         Order saved = orderRepository.save(order);
+
         recordHistory(saved, OrderStatus.SHIPPED, "Pedido despachado.");
 
         return orderMapper.toResponse(saved);
@@ -173,11 +183,12 @@ public class OrderServiceImpl implements OrderService{
         Order order = getOrThrow(id);
 
         if(order.getStatus() != OrderStatus.SHIPPED){
-            throw new BusinessException("Solo un pedido en estado SHIPPED puede marcarse como entregado.");
+            throw new BusinessException("Solo un pedido en estado SHIPPED puede puede pasar a DELIVERED.");
         }
 
         order.setStatus(OrderStatus.DELIVERED);
         Order saved = orderRepository.save(order);
+
         recordHistory(saved, OrderStatus.DELIVERED, "Pedido entregado.");
 
         return orderMapper.toResponse(saved);
@@ -187,33 +198,38 @@ public class OrderServiceImpl implements OrderService{
     public OrderResponse cancel(Long id, CancelOrderRequest request){
         Order order = getOrThrow(id);
 
-        if(order.getStatus() == OrderStatus.DELIVERED){
-            throw new BusinessException("Un pedido entregado no puede cancelarse.");
+        if(order.getStatus() == OrderStatus.PAID){
+            for (OrderItem item:order.getItems()){
+                Inventory inventory = inventoryRepository.findByProductId(item.getProduct().getId())
+                                      .orElseThrow(() -> new ResourceNotFoundException(
+                                                         "Inventario no encontrado para el producto: "+
+                                                         item.getProduct().getName()));
+
+                inventory.setAvailableStock(inventory.getAvailableStock() + item.getQuantity());
+
+                inventoryRepository.save(inventory);
+            }
         }
 
         if(order.getStatus() == OrderStatus.SHIPPED){
-            throw new BusinessException("Un pedido despachado no puede cancelarse.");
+            throw new BusinessException("Un pedido SHIPPED no puede cancelarse.");
+        }
+
+        if(order.getStatus() == OrderStatus.DELIVERED){
+            throw new BusinessException("Un pedido DELIVERED no puede cancelarse.");
         }
 
         if(order.getStatus() == OrderStatus.CANCELLED){
             throw new BusinessException("El pedido ya está cancelado.");
         }
 
-        if(order.getStatus() == OrderStatus.PAID){
-            for(OrderItem item:order.getItems()){
-                Inventory inventory = inventoryRepository.findByProductId(item.getProduct().getId())
-                                      .orElseThrow(() -> new ResourceNotFoundException(
-                                      "Inventario no encontrado para el producto: "+
-                                      item.getProduct().getName()));
-                inventory.setAvailableStock(inventory.getAvailableStock() + item.getQuantity());
-                inventoryRepository.save(inventory);
-            }
-        }
-
         order.setStatus(OrderStatus.CANCELLED);
+
         Order saved = orderRepository.save(order);
+
         recordHistory(saved, OrderStatus.CANCELLED,
-                      request.getNotes() != null ? request.getNotes():"Pedido cancelado.");
+                      request.getNotes() !=  null ? request.getNotes():"Pedido cancelado."
+        );
 
         return orderMapper.toResponse(saved);
     }

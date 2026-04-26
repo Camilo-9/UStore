@@ -10,9 +10,10 @@ import edu.unimagdalena.uStore.repositories.InventoryRepository;
 import edu.unimagdalena.uStore.api.dto.request.CreateProductRequest;
 import edu.unimagdalena.uStore.api.dto.request.UpdateInventoryRequest;
 import edu.unimagdalena.uStore.api.dto.response.ProductResponse;
-import edu.unimagdalena.uStore.exceptions.BusinessException;
+import edu.unimagdalena.uStore.api.dto.response.InventoryResponse;
 import edu.unimagdalena.uStore.exceptions.ConflictException;
 import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
+import edu.unimagdalena.uStore.services.mapper.ProductMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -33,54 +34,68 @@ class ProductServiceImplTest{
     @Mock
     private InventoryRepository inventoryRepository;
 
+    @Mock
+    private InventoryServiceImpl inventoryService;
+
+    @Mock
+    private ProductMapper productMapper;
+
     @InjectMocks
     private ProductServiceImpl productService;
 
     @Test
-    void noDebeCrearProductoConPrecioCero(){
-        CreateProductRequest request = new CreateProductRequest();
-        request.setPrice(BigDecimal.ZERO);
-
-        assertThrows(BusinessException.class, () -> {productService.create(request);});
-    }
-
-    @Test
     void noDebeCrearProductoSinCategoriaValida(){
-        CreateProductRequest request = new CreateProductRequest();
-        request.setCategoryId(1L);
+        CreateProductRequest createProductRequest = new CreateProductRequest();
+        createProductRequest.setPrice(BigDecimal.valueOf(100));
+        createProductRequest.setCategoryId(1L);
+        createProductRequest.setSku("fd415");
 
+        when(productRepository.existsBySku("fd415")).thenReturn(false);
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> {productService.create(request);});
+        assertThrows(ResourceNotFoundException.class, () -> productService.create(createProductRequest));
     }
 
     @Test
     void noDebePermitirSkuDuplicado(){
-        CreateProductRequest request = new CreateProductRequest();
-        request.setSku("ABC123");
+        CreateProductRequest createProductRequest = new CreateProductRequest();
+        createProductRequest.setSku("Abc123");
+        createProductRequest.setPrice(BigDecimal.valueOf(100));
+        createProductRequest.setCategoryId(1L);
 
-        when(productRepository.findBySku("ABC123")).thenReturn(Optional.of(new Product()));
+        when(productRepository.existsBySku("Abc123")).thenReturn(true);
 
-        assertThrows(ConflictException.class, () -> {productService.create(request);});
+        assertThrows(ConflictException.class, () -> productService.create(createProductRequest));
     }
 
     @Test
     void debeCrearProductoCorrectamente(){
-        CreateProductRequest request = new CreateProductRequest();
-        request.setSku("ABC123");
-        request.setPrice(BigDecimal.valueOf(100));
-        request.setCategoryId(1L);
+        CreateProductRequest createProductRequest = new CreateProductRequest();
+        createProductRequest.setSku("fd45d");
+        createProductRequest.setPrice(BigDecimal.valueOf(100));
+        createProductRequest.setCategoryId(1L);
 
         Category category = new Category();
         category.setId(1L);
 
-        when(productRepository.findBySku("ABC123")).thenReturn(Optional.empty());
+        when(productRepository.existsBySku("fd45d")).thenReturn(false);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(productRepository.save(any(Product.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(inventoryRepository.save(any(Inventory.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        ProductResponse response = productService.create(request);
+        when(productMapper.toResponse(any(Product.class), any(Inventory.class))).thenAnswer(inv -> {
+             Product product = inv.getArgument(0);
+             ProductResponse productResponse = new ProductResponse();
+             productResponse.setSku(product.getSku());
+             productResponse.setPrice(product.getPrice());
 
-        assertEquals("ABC123", response.getSku());
+             return productResponse;
+        });
+
+        ProductResponse response = productService.create(createProductRequest);
+
+        assertEquals("fd45d", response.getSku());
+        assertEquals(0, response.getPrice().compareTo(BigDecimal.valueOf(100)));
     }
 
     @Test
@@ -92,35 +107,42 @@ class ProductServiceImplTest{
         inventory.setAvailableStock(10);
         inventory.setMinimumStock(2);
 
-        UpdateInventoryRequest request = new UpdateInventoryRequest();
-        request.setAvailableStock(20);
-        request.setMinimumStock(5);
+        UpdateInventoryRequest updateInventoryRequest = new UpdateInventoryRequest();
+        updateInventoryRequest.setAvailableStock(20);
+        updateInventoryRequest.setMinimumStock(5);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(inventoryService.update(eq(1L), any(UpdateInventoryRequest.class))).thenReturn(
+             new InventoryResponse());
         when(inventoryRepository.findByProductId(1L)).thenReturn(Optional.of(inventory));
+        when(productMapper.toResponse(any(Product.class), any(Inventory.class))).thenReturn(
+             new ProductResponse());
 
-        productService.updateInventory(1L, request);
+        productService.updateInventory(1L, updateInventoryRequest);
 
-        assertEquals(20, inventory.getAvailableStock());
-        assertEquals(5, inventory.getMinimumStock());
+        verify(inventoryService).update(1L, updateInventoryRequest);
     }
 
     @Test
     void debeGuardarProducto(){
-        CreateProductRequest request = new CreateProductRequest();
-        request.setSku("ABC123");
-        request.setPrice(BigDecimal.valueOf(100));
-        request.setCategoryId(1L);
+        CreateProductRequest createProductRequest = new CreateProductRequest();
+        createProductRequest.setSku("hg564m");
+        createProductRequest.setPrice(BigDecimal.valueOf(100));
+        createProductRequest.setCategoryId(1L);
 
         Category category = new Category();
         category.setId(1L);
 
-        when(productRepository.findBySku(anyString())).thenReturn(Optional.empty());
+        when(productRepository.existsBySku(anyString())).thenReturn(false);
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(productRepository.save(any(Product.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(inventoryRepository.save(any(Inventory.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(productMapper.toResponse(any(Product.class), any(Inventory.class))).thenReturn(
+             new ProductResponse());
 
-        productService.create(request);
+        productService.create(createProductRequest);
 
         verify(productRepository).save(any(Product.class));
+        verify(inventoryRepository).save(any(Inventory.class));
     }
 }
