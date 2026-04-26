@@ -4,7 +4,6 @@ package edu.unimagdalena.uStore.services;
 import edu.unimagdalena.uStore.entities.Inventory;
 import edu.unimagdalena.uStore.entities.Product;
 import edu.unimagdalena.uStore.repositories.InventoryRepository;
-import edu.unimagdalena.uStore.repositories.ProductRepository;
 import edu.unimagdalena.uStore.api.dto.request.UpdateInventoryRequest;
 import edu.unimagdalena.uStore.exceptions.BusinessException;
 import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
@@ -22,7 +21,7 @@ class InventoryServiceImplTest{
     private InventoryRepository inventoryRepository;
 
     @Mock
-    private ProductRepository productRepository;
+    private ProductServiceImpl productService;
 
     @InjectMocks
     private InventoryServiceImpl inventoryService;
@@ -33,7 +32,7 @@ class InventoryServiceImplTest{
         request.setAvailableStock(-1);
         request.setMinimumStock(5);
 
-        assertThrows(BusinessException.class, () -> {inventoryService.update(1L, request);});
+        assertThrows(BusinessException.class, () -> inventoryService.update(1L, request));
     }
 
     @Test
@@ -42,18 +41,19 @@ class InventoryServiceImplTest{
         request.setAvailableStock(10);
         request.setMinimumStock(-5);
 
-        assertThrows(BusinessException.class, () -> {inventoryService.update(1L, request);});
+        assertThrows(BusinessException.class, () -> inventoryService.update(1L, request));
     }
 
     @Test
     void noDebeActualizarInventarioSiProductoNoExiste(){
-        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+        when(productService.getOrThrow(1L))
+        .thenThrow(new ResourceNotFoundException("Producto no encontrado"));
 
         UpdateInventoryRequest request = new UpdateInventoryRequest();
         request.setAvailableStock(10);
         request.setMinimumStock(2);
 
-        assertThrows(ResourceNotFoundException.class, () -> {inventoryService.update(1L, request);});
+        assertThrows(ResourceNotFoundException.class, () -> inventoryService.update(1L, request));
     }
 
     @Test
@@ -61,10 +61,10 @@ class InventoryServiceImplTest{
         Product product = new Product();
         product.setId(1L);
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productService.getOrThrow(1L)).thenReturn(product);
         when(inventoryRepository.findByProductId(1L)).thenReturn(Optional.empty());
         when(inventoryRepository.save(any(Inventory.class))).thenAnswer(invocation ->
-                                                             invocation.getArgument(0));
+                                                                        invocation.getArgument(0));
 
         UpdateInventoryRequest request = new UpdateInventoryRequest();
         request.setAvailableStock(10);
@@ -84,8 +84,10 @@ class InventoryServiceImplTest{
         inventory.setAvailableStock(5);
         inventory.setMinimumStock(1);
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productService.getOrThrow(1L)).thenReturn(product);
         when(inventoryRepository.findByProductId(1L)).thenReturn(Optional.of(inventory));
+        when(inventoryRepository.save(any(Inventory.class))).thenAnswer(invocation ->
+                                                                        invocation.getArgument(0));
 
         UpdateInventoryRequest request = new UpdateInventoryRequest();
         request.setAvailableStock(20);
@@ -104,8 +106,10 @@ class InventoryServiceImplTest{
 
         Inventory inventory = new Inventory();
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productService.getOrThrow(1L)).thenReturn(product);
         when(inventoryRepository.findByProductId(1L)).thenReturn(Optional.of(inventory));
+        when(inventoryRepository.save(any(Inventory.class))).thenAnswer(invocation ->
+                                                             invocation.getArgument(0));
 
         UpdateInventoryRequest request = new UpdateInventoryRequest();
         request.setAvailableStock(10);

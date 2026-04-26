@@ -1,10 +1,12 @@
 
 package edu.unimagdalena.uStore.services;
 
+import edu.unimagdalena.uStore.entities.Product;
 import edu.unimagdalena.uStore.entities.Inventory;
 import edu.unimagdalena.uStore.repositories.InventoryRepository;
 import edu.unimagdalena.uStore.api.dto.request.UpdateInventoryRequest;
 import edu.unimagdalena.uStore.api.dto.response.InventoryResponse;
+import edu.unimagdalena.uStore.exceptions.BusinessException;
 import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class InventoryServiceImpl implements InventoryService{
 
     public Inventory getOrThrow(Long productId){
         return inventoryRepository.findByProductId(productId).orElseThrow(() -> new ResourceNotFoundException(
-               "Inventario no encontrado para el producto con id: " + productId));
+               "Inventario no encontrado para el producto con id: "+ productId));
     }
 
     @Override
@@ -46,8 +48,23 @@ public class InventoryServiceImpl implements InventoryService{
 
     @Override
     public InventoryResponse update(Long productId, UpdateInventoryRequest request){
-        productService.getOrThrow(productId);
-        Inventory inventory = getOrThrow(productId);
+        if(request.getAvailableStock() < 0){
+            throw new BusinessException("El stock disponible no puede ser negativo");
+        }
+
+        if(request.getMinimumStock() < 0){
+            throw new BusinessException("El stock mínimo no puede ser negativo");
+        }
+
+        Product product = productService.getOrThrow(productId);
+
+        Inventory inventory = inventoryRepository.findByProductId(productId).orElseGet(() -> {
+                              Inventory newInventory = new Inventory();
+                              newInventory.setProduct(product);
+
+                              return newInventory;
+                });
+
         inventory.setAvailableStock(request.getAvailableStock());
         inventory.setMinimumStock(request.getMinimumStock());
 

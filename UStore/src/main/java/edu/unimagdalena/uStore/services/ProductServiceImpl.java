@@ -11,6 +11,7 @@ import edu.unimagdalena.uStore.api.dto.request.CreateProductRequest;
 import edu.unimagdalena.uStore.api.dto.request.UpdateProductRequest;
 import edu.unimagdalena.uStore.api.dto.request.UpdateInventoryRequest;
 import edu.unimagdalena.uStore.api.dto.response.ProductResponse;
+import edu.unimagdalena.uStore.api.dto.response.InventoryResponse;
 import edu.unimagdalena.uStore.exceptions.ConflictException;
 import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
 import edu.unimagdalena.uStore.services.mapper.ProductMapper;
@@ -39,7 +40,7 @@ public class ProductServiceImpl implements ProductService{
 
     public Product getOrThrow(Long id){
         return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
-        "Producto no encontrado con id: "+ id));
+                                                                "Producto con id "+ id+ " no encontrado"));
     }
 
     @Override
@@ -48,30 +49,35 @@ public class ProductServiceImpl implements ProductService{
             throw new ConflictException("Ya existe un producto con el SKU: "+ request.getSku());
         }
 
-        Category category = categoryRepository.findById(request.getCategoryId())
-                            .orElseThrow(() -> new ResourceNotFoundException(
-                            "Categoría con id: "+ request.getCategoryId()+ "no encontrada."));
+        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() ->
+                            new ResourceNotFoundException("Categoría con id "+ request.getCategoryId()+
+                                                          " no encontrada."));
+
         Product product = new Product();
         product.setSku(request.getSku());
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setCategory(category);
+        product.setActive(true);
+
         Product saved = productRepository.save(product);
 
         Inventory inventory = new Inventory();
         inventory.setProduct(saved);
         inventory.setAvailableStock(0);
         inventory.setMinimumStock(0);
-        inventoryRepository.save(inventory);
 
-        return productMapper.toResponse(saved, inventory);
+        Inventory savedInventory = inventoryRepository.save(inventory);
+
+        return productMapper.toResponse(saved, savedInventory);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ProductResponse findById(Long id){
         Product product = getOrThrow(id);
+
         Inventory inventory = inventoryRepository.findByProductId(id).orElse(null);
 
         return productMapper.toResponse(product, inventory);
@@ -80,25 +86,30 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> findAll(){
-        return productRepository.findAll().stream().map(p -> {
-                    Inventory inventory = inventoryRepository.findByProductId(p.getId()).orElse(null);
+        return productRepository.findAll().stream().map(product -> {Inventory inventory =
+                                                                    inventoryRepository
+                                                                    .findByProductId(product.getId())
+                                                                    .orElse(null);
 
-                    return productMapper.toResponse(p, inventory);}).toList();
+                    return productMapper.toResponse(product, inventory);
+        }).toList();
     }
 
     @Override
     public ProductResponse update(Long id, UpdateProductRequest request){
         Product product = getOrThrow(id);
 
-        Category category = categoryRepository.findById(request.getCategoryId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Categoría con id: "+
-                            request.getCategoryId()+ "no encontrada."));
+        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() ->
+                            new ResourceNotFoundException("Categoría con id "+ request.getCategoryId()+
+                                                          " no encontrada."));
+
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setCategory(category);
 
         Product saved = productRepository.save(product);
+
         Inventory inventory = inventoryRepository.findByProductId(id).orElse(null);
 
         return productMapper.toResponse(saved, inventory);
@@ -107,7 +118,9 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public ProductResponse updateInventory(Long id, UpdateInventoryRequest request){
         Product product = getOrThrow(id);
-        inventoryService.update(id, request);
+
+        InventoryResponse inventoryResponse = inventoryService.update(id, request);
+
         Inventory inventory = inventoryRepository.findByProductId(id).orElse(null);
 
         return productMapper.toResponse(product, inventory);
