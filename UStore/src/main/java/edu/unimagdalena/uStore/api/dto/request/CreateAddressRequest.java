@@ -1,11 +1,22 @@
 
 package edu.unimagdalena.uStore.api.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class CreateAddressRequest{
+    @NotBlank
     private String street;
+
+    @NotBlank
     private String city;
+
+    @NotBlank
     private String state;
+
+    @NotBlank
     private String zipCode;
+
+    @NotBlank
     private String country;
 
     public String getStreet(){

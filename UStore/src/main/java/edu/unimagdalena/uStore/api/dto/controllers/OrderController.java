@@ -23,45 +23,38 @@ public class OrderController{
     public ResponseEntity<OrderResponse> create(@RequestBody
                                                 @Valid
                                                 CreateOrderRequest request){
-
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.create(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getById(@PathVariable
+    public ResponseEntity<OrderResponse> getById(@PathVariable("id")
                                                  Long id){
-
         return ResponseEntity.ok(orderService.findById(id));
     }
 
     @PutMapping("/{id}/pay")
-    public ResponseEntity<OrderResponse> pay(@PathVariable
+    public ResponseEntity<OrderResponse> pay(@PathVariable("id")
                                              Long id){
-
         return ResponseEntity.ok(orderService.pay(id));
     }
 
     @PutMapping("/{id}/ship")
-    public ResponseEntity<OrderResponse> ship(@PathVariable
+    public ResponseEntity<OrderResponse> ship(@PathVariable("id")
                                               Long id){
-
         return ResponseEntity.ok(orderService.ship(id));
     }
 
     @PutMapping("/{id}/deliver")
-    public ResponseEntity<OrderResponse> deliver(@PathVariable
+    public ResponseEntity<OrderResponse> deliver(@PathVariable("id")
                                                  Long id){
         return ResponseEntity.ok(orderService.deliver(id));
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<OrderResponse> cancel(@PathVariable
-                                                Long id,
-
+    public ResponseEntity<OrderResponse> cancel(@PathVariable("id") Long id,
                                                 @RequestBody
                                                 @Valid
                                                 CancelOrderRequest request){
-
         return ResponseEntity.ok(orderService.cancel(id, request));
     }
 }

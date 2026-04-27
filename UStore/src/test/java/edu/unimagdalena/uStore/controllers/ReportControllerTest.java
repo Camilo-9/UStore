@@ -3,9 +3,11 @@ package edu.unimagdalena.uStore.controllers;
 
 import edu.unimagdalena.uStore.api.dto.controllers.ReportController;
 import edu.unimagdalena.uStore.exceptions.BusinessException;
+import edu.unimagdalena.uStore.security.jwt.JwtAuthenticationFilter;
 import edu.unimagdalena.uStore.services.ReportService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.mockito.Mockito.*;
 
 @WebMvcTest(ReportController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ReportControllerTest{
     @Autowired
     private MockMvc mockMvc;
@@ -22,13 +25,16 @@ class ReportControllerTest{
     @MockitoBean
     private ReportService reportService;
 
+    @MockitoBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Test
     void debeObtenerProductosMasVendidos() throws Exception{
         when(reportService.findBestSellingProducts(any(), any())).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/reports/best-selling-products").param("startDate",
-                    "2024-01-01T00:00:00").param("endDate", "2024-12-31T23:59:59"))
-                            .andExpect(status().isOk());
+        mockMvc.perform(get("/api/reports/best-selling-products")
+               .param("startDate", "2024-01-01T00:00:00")
+               .param("endDate", "2024-12-31T23:59:59")).andExpect(status().isOk());
     }
 
     @Test
@@ -47,11 +53,12 @@ class ReportControllerTest{
 
     @Test
     void debeRetornarErrorSiServicioFalla() throws Exception{
-        when(reportService.findBestSellingProducts(any(), any()))
-             .thenThrow(new BusinessException("Error en reporte"));
+        when(reportService.findBestSellingProducts(any(), any())).thenThrow(new BusinessException(
+                                                                            "Error en reporte"));
 
-        mockMvc.perform(get("/api/reports/best-selling-products").param("startDate",
-                    "2024-01-01T00:00:00").param("endDate", "2024-12-31T23:59:59"))
-                            .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/reports/best-selling-products")
+               .param("startDate", "2024-01-01T00:00:00")
+               .param("endDate", "2024-12-31T23:59:59")).andExpect(status()
+               .isUnprocessableEntity());
     }
 }

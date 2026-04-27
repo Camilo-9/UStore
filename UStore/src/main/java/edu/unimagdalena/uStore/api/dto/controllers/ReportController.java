@@ -6,6 +6,7 @@ import edu.unimagdalena.uStore.api.dto.response.BestSellingProductResponse;
 import edu.unimagdalena.uStore.api.dto.response.LowStockProductResponse;
 import edu.unimagdalena.uStore.api.dto.response.MonthlyIncomeResponse;
 import edu.unimagdalena.uStore.api.dto.response.TopCustomerResponse;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
@@ -21,11 +22,14 @@ public class ReportController{
     }
 
     @GetMapping("/best-selling-products")
-    public ResponseEntity<List<BestSellingProductResponse>> bestSellingProducts(@RequestParam
-                                                                                LocalDateTime startDate,
+    public ResponseEntity<List<BestSellingProductResponse>> bestSellingProducts(
+                                                            @RequestParam("startDate")
+                                                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                            LocalDateTime startDate,
 
-                                                                                @RequestParam
-                                                                                LocalDateTime endDate){
+                                                            @RequestParam("endDate")
+                                                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                            LocalDateTime endDate){
 
         return ResponseEntity.ok(reportService.findBestSellingProducts(startDate, endDate));
     }
