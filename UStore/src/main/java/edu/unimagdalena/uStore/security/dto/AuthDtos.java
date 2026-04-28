@@ -33,9 +33,8 @@ public class AuthDtos{
     ){}
 
     public record LoginRequest(
-            @Email
             @NotBlank
-            String email,
+            String username,
 
             @NotBlank
             String password

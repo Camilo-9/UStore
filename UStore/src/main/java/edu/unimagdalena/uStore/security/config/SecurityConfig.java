@@ -81,8 +81,8 @@ public class SecurityConfig{
                         .requestMatchers("/api/reports/**").hasAnyRole("ADMIN", "COORDINATOR")
 
                         .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
