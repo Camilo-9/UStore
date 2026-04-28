@@ -32,13 +32,9 @@ public class JwtService{
         Instant now = Instant.now();
         Map<String, Object> safeClaims = claims == null ? Map.of():claims;
 
-        return Jwts.builder()
-               .claims(safeClaims)
-               .subject(principal.getUsername())
-               .issuedAt(Date.from(now))
-               .expiration(Date.from(now.plusSeconds(expirationSeconds)))
-               .signWith(key, Jwts.SIG.HS256)
-               .compact();
+        return Jwts.builder().claims(safeClaims).subject(principal.getUsername()).issuedAt(Date.from(now))
+                   .expiration(Date.from(now.plusSeconds(expirationSeconds))).signWith(key, Jwts.SIG.HS256)
+                   .compact();
     }
 
     public String extractUsername(String token){
@@ -57,11 +53,7 @@ public class JwtService{
     }
 
     private Claims parseAllClaims(String token){
-        return Jwts.parser()
-               .verifyWith(key)
-               .build()
-               .parseSignedClaims(token)
-               .getPayload();
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
     }
 
     public long getExpirationSeconds(){

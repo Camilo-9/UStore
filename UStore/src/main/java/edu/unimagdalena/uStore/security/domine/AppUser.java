@@ -1,10 +1,10 @@
 
 package edu.unimagdalena.uStore.security.domine;
 
-import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
@@ -15,7 +15,7 @@ public class AppUser implements UserDetails{
     private UUID id;
 
     @Column(nullable = false, unique = true, length = 100)
-    private String userName;
+    private String username;
 
     @Column(nullable = false, length = 100)
     private String password;
@@ -37,10 +37,10 @@ public class AppUser implements UserDetails{
     public AppUser(){
     }
 
-    public AppUser(UUID id, String userName, String password, Set<Role> roles, boolean enabled,
+    public AppUser(UUID id, String username, String password, Set<Role> roles, boolean enabled,
                    boolean accountNonLocked){
         this.id = id;
-        this.userName = userName;
+        this.username = username;
         this.password = password;
         this.roles = roles != null ? roles:new HashSet<>();
         this.enabled = enabled;
@@ -57,11 +57,11 @@ public class AppUser implements UserDetails{
 
     @Override
     public String getUsername(){
-        return userName;
+        return username;
     }
 
-    public void setUserName(String userName){
-        this.userName = userName;
+    public void setUsername(String username){
+        this.username = username;
     }
 
     @Override
@@ -118,7 +118,7 @@ public class AppUser implements UserDetails{
     public String toString(){
         return "AppUser{"+
                 "id="+ id+
-                ", userName='"+ userName+ '\''+
+                ", username='"+ username + '\''+
                 ", roles="+ roles+
                 ", enabled="+ enabled+
                 ", accountNonLocked="+ accountNonLocked+
