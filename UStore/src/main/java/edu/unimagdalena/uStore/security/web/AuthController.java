@@ -69,12 +69,12 @@ public class AuthController{
         return ResponseEntity.ok(new AuthResponse(token, "Bearer", jwtService.getExpirationSeconds()));
     }
 
-    private ResponseEntity<AuthResponse> register(String email, String password, Set<Role> roles){
-        if(appUserRepository.existsByEmailIgnoreCase(email))
+    private ResponseEntity<AuthResponse> register(String userName, String password, Set<Role> roles){
+        if(appUserRepository.existsByUserNameIgnoreCase(userName))
             return ResponseEntity.badRequest().build();
 
         AppUser user = new AppUser();
-        user.setUserName(email);
+        user.setUserName(userName);
         user.setPassword(bCryptPasswordEncoder.encode(password));
         user.setRoles(roles);
         user.setEnabled(true);
