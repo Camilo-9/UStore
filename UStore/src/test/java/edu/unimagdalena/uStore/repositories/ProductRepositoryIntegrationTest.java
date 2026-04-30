@@ -5,18 +5,20 @@ import edu.unimagdalena.uStore.entities.Product;
 import edu.unimagdalena.uStore.entities.Category;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.math.BigDecimal;
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DataJpaTest
 @Transactional
 @Rollback
 @ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ProductRepositoryIntegrationTest{
     @Autowired
     private ProductRepository productRepository;
@@ -34,16 +36,15 @@ class ProductRepositoryIntegrationTest{
         category = categoryRepository.save(category);
 
         Product product = new Product();
-        product.setSku("ABC123");
+        product.setSku("fg89fd");
         product.setName("Camisa Polo");
-        product.setPrice(BigDecimal.valueOf(100));
+        product.setPrice(BigDecimal.valueOf(1500));
         product.setActive(true);
         product.setCategory(category);
 
         productRepository.save(product);
 
-        List<Product> result = productRepository
-                               .findByActiveTrueAndCategoryId(category.getId());
+        List<Product> result = productRepository.findByActiveTrueAndCategoryId(category.getId());
 
         assertFalse(result.isEmpty());
     }
