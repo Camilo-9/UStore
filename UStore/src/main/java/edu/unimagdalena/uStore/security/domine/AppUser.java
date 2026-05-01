@@ -31,7 +31,7 @@ public class AppUser implements UserDetails{
     @Column(nullable = false)
     private boolean enabled = true;
 
-    @Column(nullable = false)
+    @Column(name = "account_non_locked", nullable = false)
     private boolean accountNonLocked = true;
 
     public AppUser(){
