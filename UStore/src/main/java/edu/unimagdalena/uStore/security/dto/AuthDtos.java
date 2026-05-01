@@ -1,0 +1,48 @@
+
+package edu.unimagdalena.uStore.security.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+public class AuthDtos{
+    public record RegisterClientRequest(
+            @Email
+            @NotBlank
+            String email,
+
+            @NotBlank
+            String password
+    ){}
+
+    public record RegisterAdminRequest(
+            @Email
+            @NotBlank
+            String email,
+
+            @NotBlank
+            String password
+    ){}
+
+    public record RegisterCoordinatorRequest(
+            @Email
+            @NotBlank
+            String email,
+
+            @NotBlank
+            String password
+    ){}
+
+    public record LoginRequest(
+            @NotBlank
+            String username,
+
+            @NotBlank
+            String password
+    ){}
+
+    public record AuthResponse(
+            String accessToken,
+            String tokenType,
+            long expiresInSeconds
+    ){}
+}

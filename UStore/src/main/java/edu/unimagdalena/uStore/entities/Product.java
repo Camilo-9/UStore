@@ -39,9 +39,15 @@ public class Product{
 
     @PrePersist
     private void prePersist(){
-        this.createdAt = LocalDateTime.now();
+        if(this.createdAt == null){
+            this.createdAt = LocalDateTime.now();
+        }
+
         this.updatedAt = LocalDateTime.now();
-        this.active = true;
+
+        if(this.active == null){
+            this.active = true;
+        }
     }
 
     @PreUpdate

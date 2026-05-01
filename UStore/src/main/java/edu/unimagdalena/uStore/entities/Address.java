@@ -35,7 +35,9 @@ public class Address{
 
     @PrePersist
     private void prePersist(){
-        this.createdAt = LocalDateTime.now();
+        if(this.createdAt == null){
+            this.createdAt = LocalDateTime.now();
+        }
 
         if(this.country == null){
             this.country = "Colombia";
