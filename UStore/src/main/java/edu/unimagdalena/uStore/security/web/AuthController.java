@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
@@ -60,7 +61,8 @@ public class AuthController{
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.username(),
                                                                                    req.password()));
 
-        var user = appUserRepository.findByUsernameIgnoreCase(req.username()).orElseThrow();
+        var user = appUserRepository.findByUsernameIgnoreCase(req.username()).orElseThrow(() ->
+                   new UsernameNotFoundException("Usuario no encontrado"));
         var principal = User.withUsername(user.getUsername()).password(user.getPassword())
                             .authorities(user.getRoles().stream().map(Enum::name).toArray(String[]::new))
                             .accountLocked(!user.isAccountNonLocked()).disabled(!user.isEnabled()).build();
