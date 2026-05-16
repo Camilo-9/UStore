@@ -62,6 +62,7 @@ public class CustomerServiceImpl implements CustomerService{
         customer.setFirstName(request.getFirstName());
         customer.setLastName(request.getLastName());
         customer.setPhone(request.getPhone());
+        customer.setEmail(request.getEmail());
 
         return customerMapper.toResponse(customerRepository.save(customer));
     }
