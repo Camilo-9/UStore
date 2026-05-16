@@ -1,6 +1,7 @@
 
 package edu.unimagdalena.uStore.api.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -10,6 +11,10 @@ public class UpdateCustomerRequest{
 
     @NotBlank
     private String lastName;
+
+    @Email
+    @NotBlank
+    private String email;
 
     @NotBlank
     @Size(max = 24)
@@ -29,6 +34,14 @@ public class UpdateCustomerRequest{
 
     public void setLastName(String lastName){
         this.lastName = lastName;
+    }
+
+    public String getEmail(){
+        return email;
+    }
+
+    public void setEmail(String email){
+        this.email = email;
     }
 
     public String getPhone(){
