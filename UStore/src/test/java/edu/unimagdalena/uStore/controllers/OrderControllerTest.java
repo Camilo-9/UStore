@@ -5,11 +5,9 @@ import edu.unimagdalena.uStore.api.dto.controllers.OrderController;
 import edu.unimagdalena.uStore.api.dto.response.OrderResponse;
 import edu.unimagdalena.uStore.exceptions.BusinessException;
 import edu.unimagdalena.uStore.exceptions.ResourceNotFoundException;
-import edu.unimagdalena.uStore.security.jwt.JwtAuthenticationFilter;
 import edu.unimagdalena.uStore.services.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,16 +17,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.mockito.Mockito.*;
 
 @WebMvcTest(OrderController.class)
-@AutoConfigureMockMvc(addFilters = false)
 class OrderControllerTest{
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
     private OrderService orderService;
-
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void debeCrearPedido() throws Exception{
