@@ -35,7 +35,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     @Query("""
            SELECT oi.product.id, oi.product.name, SUM(oi.quantity) AS totalSold
            FROM OrderItem oi
-           WHERE oi.order.createdAt BETWEEN :from AND :to
+           WHERE (oi.order.createdAt BETWEEN :from AND :to) AND (oi.order.status != 'CANCELLED')
            GROUP BY oi.product.id, oi.product.name
            ORDER BY totalSold DESC
            """)
