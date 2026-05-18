@@ -19,17 +19,17 @@ public class OrderController{
         this.orderService = orderService;
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> getById(@PathVariable("id")
+                                                 Long id){
+        return ResponseEntity.ok(orderService.findById(id));
+    }
+
     @PostMapping
     public ResponseEntity<OrderResponse> create(@RequestBody
                                                 @Valid
                                                 CreateOrderRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.create(request));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getById(@PathVariable("id")
-                                                 Long id){
-        return ResponseEntity.ok(orderService.findById(id));
     }
 
     @PutMapping("/{id}/pay")
