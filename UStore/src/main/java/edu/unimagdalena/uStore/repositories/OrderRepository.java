@@ -33,11 +33,12 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     );
 
     @Query("""
-           SELECT oi.product.id, oi.product.name, SUM(oi.quantity) AS totalSold
+           SELECT oi.product.id, oi.product.name, SUM(oi.quantity)
            FROM OrderItem oi
-           WHERE (oi.order.createdAt BETWEEN :from AND :to) AND (oi.order.status != 'CANCELLED')
+           WHERE oi.order.createdAt BETWEEN :from AND :to
+             AND oi.order.status != edu.unimagdalena.uStore.enums.OrderStatus.CANCELLED
            GROUP BY oi.product.id, oi.product.name
-           ORDER BY totalSold DESC
+           ORDER BY SUM(oi.quantity) DESC
            """)
     List<Object[]> findBestSellingProducts(
             @Param("from") LocalDateTime from,
