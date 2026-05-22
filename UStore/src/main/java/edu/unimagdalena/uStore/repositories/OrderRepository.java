@@ -37,6 +37,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
            FROM OrderItem oi
            WHERE oi.order.createdAt BETWEEN :from AND :to
              AND oi.order.status != edu.unimagdalena.uStore.enums.OrderStatus.CANCELLED
+             AND oi.order.status != edu.unimagdalena.uStore.enums.OrderStatus.CREATED
            GROUP BY oi.product.id, oi.product.name
            ORDER BY SUM(oi.quantity) DESC
            """)
@@ -48,7 +49,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     @Query("""
            SELECT YEAR(o.createdAt), MONTH(o.createdAt), SUM(o.total)
            FROM Order o
-           WHERE o.status = edu.unimagdalena.uStore.enums.OrderStatus.PAID
+           WHERE o.status != 'CANCELLED'
+             AND o.status != 'CREATED'
            GROUP BY YEAR(o.createdAt), MONTH(o.createdAt)
            ORDER BY YEAR(o.createdAt), MONTH(o.createdAt)
            """)
