@@ -36,8 +36,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
            SELECT oi.product.id, oi.product.name, SUM(oi.quantity)
            FROM OrderItem oi
            WHERE oi.order.createdAt BETWEEN :from AND :to
-             AND oi.order.status != edu.unimagdalena.uStore.enums.OrderStatus.CANCELLED
-             AND oi.order.status != edu.unimagdalena.uStore.enums.OrderStatus.CREATED
+             AND oi.order.status != 'CANCELLED'
+             AND oi.order.status != 'CREATED'
            GROUP BY oi.product.id, oi.product.name
            ORDER BY SUM(oi.quantity) DESC
            """)
