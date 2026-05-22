@@ -48,7 +48,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
     @Query("""
            SELECT YEAR(o.createdAt), MONTH(o.createdAt), SUM(o.total)
            FROM Order o
-           WHERE o.status = 'PAID'
+           WHERE o.status = edu.unimagdalena.uStore.enums.OrderStatus.PAID
            GROUP BY YEAR(o.createdAt), MONTH(o.createdAt)
            ORDER BY YEAR(o.createdAt), MONTH(o.createdAt)
            """)
