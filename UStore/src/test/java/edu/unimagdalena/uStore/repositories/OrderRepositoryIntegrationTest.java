@@ -166,6 +166,7 @@ public class OrderRepositoryIntegrationTest{
         address2 = addressRepository.save(address2);
 
         Order order1 = new Order();
+        order1.setStatus(OrderStatus.SHIPPED);
         order1.setTotal(BigDecimal.valueOf(740));
         order1.setCreatedAt(LocalDateTime.now().minusDays(15));
         order1.setCustomer(customer2);
@@ -174,6 +175,7 @@ public class OrderRepositoryIntegrationTest{
 
         //Order 2 creada para validar también la búsqueda por fecha.
         Order order2 = new Order();
+        order2.setStatus(OrderStatus.SHIPPED);
         order2.setTotal(BigDecimal.valueOf(975));
         order2.setCreatedAt(LocalDateTime.now().minusDays(40));
         order2.setCustomer(customer1);
