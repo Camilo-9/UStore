@@ -6,22 +6,12 @@ import edu.unimagdalena.uStore.enums.CustomerStatus;
 import edu.unimagdalena.uStore.enums.OrderStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@DataJpaTest
-@Transactional
-@Rollback
-@ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class OrderRepositoryIntegrationTest{
+public class OrderRepositoryIntegrationTest extends AbstractRepositoryIT{
     @Autowired
     private OrderRepository orderRepository;
 

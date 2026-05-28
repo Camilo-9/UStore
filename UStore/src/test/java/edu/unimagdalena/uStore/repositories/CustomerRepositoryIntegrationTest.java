@@ -5,20 +5,10 @@ import edu.unimagdalena.uStore.entities.Customer;
 import edu.unimagdalena.uStore.enums.CustomerStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
 
-@DataJpaTest
-@Transactional
-@Rollback
-@ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class CustomerRepositoryIntegrationTest{
+class CustomerRepositoryIntegrationTest extends AbstractRepositoryIT{
     @Autowired
     private CustomerRepository customerRepository;
 
