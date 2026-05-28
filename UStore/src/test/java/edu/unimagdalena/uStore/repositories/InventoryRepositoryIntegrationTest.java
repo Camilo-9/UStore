@@ -6,23 +6,13 @@ import edu.unimagdalena.uStore.entities.Category;
 import edu.unimagdalena.uStore.entities.Product;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-@DataJpaTest
-@Transactional
-@Rollback
-@ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class InventoryRepositoryIntegrationTest{
+class InventoryRepositoryIntegrationTest extends AbstractRepositoryIT{
     @Autowired
     private InventoryRepository inventoryRepository;
 
