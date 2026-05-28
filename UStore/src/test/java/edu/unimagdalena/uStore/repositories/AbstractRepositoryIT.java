@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 public abstract class AbstractRepositoryIT{
     static{
-        System.setProperty("DOCKER_HOST", "npipe:////./pipe/docker_cli");
+        System.setProperty("DOCKER_HOST", "tcp://localhost:2375");
     }
 
     @Container
