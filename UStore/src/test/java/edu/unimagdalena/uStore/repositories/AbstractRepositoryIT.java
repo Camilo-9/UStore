@@ -19,6 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Testcontainers
 @ActiveProfiles("test")
 public abstract class AbstractRepositoryIT{
+    static{
+        System.setProperty("DOCKER_HOST", "npipe:////./pipe/docker_cli");
+    }
+
     @Container
     static PostgreSQLContainer<?> postgres =
             new PostgreSQLContainer<>("postgres:16")
