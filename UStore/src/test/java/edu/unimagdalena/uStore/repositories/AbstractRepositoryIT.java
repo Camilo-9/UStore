@@ -22,7 +22,6 @@ public abstract class AbstractRepositoryIT{
     static{
         System.setProperty("DOCKER_HOST", "tcp://localhost:2375");
     }
-
     @Container
     static PostgreSQLContainer<?> postgres =
             new PostgreSQLContainer<>("postgres:16")
