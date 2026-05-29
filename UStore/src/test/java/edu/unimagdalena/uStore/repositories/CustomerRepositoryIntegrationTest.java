@@ -5,10 +5,35 @@ import edu.unimagdalena.uStore.entities.Customer;
 import edu.unimagdalena.uStore.enums.CustomerStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.Optional;
 
-class CustomerRepositoryIntegrationTest extends AbstractRepositoryIT{
+@Testcontainers
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+public class CustomerRepositoryIntegrationTest{
+    @Container
+    static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:16-alpine");
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
+        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
+        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
+    }
+
+    @Test
+    void shouldStart() {
+        System.out.println("Container running " + postgreSQLContainer.isRunning());
+    }
+
     @Autowired
     private CustomerRepository customerRepository;
 
