@@ -4,18 +4,18 @@ package edu.unimagdalena.uStore.repositories;
 import edu.unimagdalena.uStore.entities.Inventory;
 import edu.unimagdalena.uStore.entities.Category;
 import edu.unimagdalena.uStore.entities.Product;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-import java.math.BigDecimal;
+import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
+import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
@@ -34,8 +34,8 @@ public class InventoryRepositoryIntegrationTest{
     }
 
     @Test
-    void containerShouldStart() {
-        System.out.println("Container running " + postgres.isRunning());
+    void containerShouldStart(){
+        System.out.println("Container running "+ postgres.isRunning());
     }
 
     @Autowired

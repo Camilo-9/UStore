@@ -1,3 +1,4 @@
+
 package edu.unimagdalena.uStore;
 
 import org.springframework.boot.test.context.TestConfiguration;

@@ -3,18 +3,16 @@ package edu.unimagdalena.uStore.repositories;
 
 import edu.unimagdalena.uStore.entities.Customer;
 import edu.unimagdalena.uStore.enums.CustomerStatus;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
@@ -25,7 +23,7 @@ public class CustomerRepositoryIntegrationTest{
     static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:16-alpine");
 
     @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
+    static void configureProperties(DynamicPropertyRegistry registry){
         registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
         registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
         registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
@@ -33,8 +31,8 @@ public class CustomerRepositoryIntegrationTest{
     }
 
     @Test
-    void shouldStart() {
-        System.out.println("Container running " + postgreSQLContainer.isRunning());
+    void shouldStart(){
+        System.out.println("Container running "+ postgreSQLContainer.isRunning());
     }
 
     @Autowired
