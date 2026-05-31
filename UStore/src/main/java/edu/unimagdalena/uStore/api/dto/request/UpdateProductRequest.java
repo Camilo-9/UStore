@@ -1,13 +1,26 @@
 
 package edu.unimagdalena.uStore.api.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class UpdateProductRequest{
+    @NotBlank
     private String name;
+
+    @NotBlank
     private String description;
+
+    @NotNull
+    @Positive
     private BigDecimal price;
+
+    @NotNull
     private Long categoryId;
+
+    private Boolean active;
 
     public String getName(){
         return name;
@@ -39,5 +52,13 @@ public class UpdateProductRequest{
 
     public void setCategoryId(Long categoryId){
         this.categoryId = categoryId;
+    }
+
+    public Boolean getActive(){
+        return active;
+    }
+
+    public void setActive(Boolean active){
+        this.active = active;
     }
 }

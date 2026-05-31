@@ -1,10 +1,27 @@
 
 package edu.unimagdalena.uStore.api.dto.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import edu.unimagdalena.uStore.enums.CustomerStatus;
+
 public class UpdateCustomerRequest{
+    @NotBlank
     private String firstName;
+
+    @NotBlank
     private String lastName;
+
+    @Email
+    @NotBlank
+    private String email;
+
+    @NotBlank
+    @Size(max = 24)
     private String phone;
+
+    private CustomerStatus status;
 
     public String getFirstName(){
         return firstName;
@@ -22,11 +39,27 @@ public class UpdateCustomerRequest{
         this.lastName = lastName;
     }
 
+    public String getEmail(){
+        return email;
+    }
+
+    public void setEmail(String email){
+        this.email = email;
+    }
+
     public String getPhone(){
         return phone;
     }
 
     public void setPhone(String phone){
         this.phone = phone;
+    }
+
+    public CustomerStatus getStatus(){
+        return status;
+    }
+
+    public void setStatus(CustomerStatus status){
+        this.status = status;
     }
 }
